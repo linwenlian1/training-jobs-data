@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全职岗位培训标注洞察（2026.01–2026.09）</title>
+<meta name="description" content="基于 442 万条全职岗位招聘数据的培训标注分析：趋势、职位/城市画像、学历经验、薪酬、技能与岗位描述、福利结构。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f2994a'/%3E%3Ctext x='32' y='45' font-size='34' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'%3E%E5%9F%B9%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f4f6fa; --card:#fff; --ink:#16202e; --ink-2:#4a5a70; --ink-3:#8296ad;
+  --line:#e5eaf1; --brand:#1d5bd6; --brand-2:#12b3a0; --accent:#f2994a;
+  --shadow:0 1px 2px rgba(16,32,56,.04),0 8px 24px rgba(16,32,56,.06);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--brand);text-decoration:none}
+.num{font-variant-numeric:tabular-nums}
+
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1320px;margin:0 auto;padding:9px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;white-space:nowrap}
+.brand .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f2994a,#e8590c);
+  display:grid;place-items:center;color:#fff;font-size:14px}
+.brand small{display:block;font-weight:400;font-size:12px;color:var(--ink-3);line-height:1.2}
+nav.menu{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+nav.menu a{padding:6px 10px;border-radius:8px;font-size:13px;color:var(--ink-2);white-space:nowrap}
+nav.menu a:hover{background:#eef3fc;color:var(--brand)}
+main{max-width:1320px;margin:0 auto;padding:26px 24px 70px}
+
+.hero{background:linear-gradient(135deg,#10233f 0%,#1b3f78 45%,#12756d 100%);
+  color:#fff;border-radius:18px;padding:30px 32px 26px;margin-bottom:22px;box-shadow:var(--shadow)}
+.hero h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+.hero p.sub{margin:0 0 20px;color:#c6d8f0;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 14px}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:#bcd0ea;margin-top:2px}
+
+section.panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:22px 24px 24px;margin-bottom:22px;scroll-margin-top:70px}
+.panel-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.panel-head h2{font-size:18px;margin:0}
+.panel-head .tag{font-size:12px;color:var(--brand);background:#eaf1ff;border-radius:999px;padding:2px 10px}
+.panel-desc{color:var(--ink-3);font-size:13px;margin:0 0 16px}
+.grid{display:grid;gap:18px}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.card{border:1px solid var(--line);border-radius:12px;padding:14px 16px 10px;background:#fff}
+.card h3{margin:0 0 2px;font-size:14px;font-weight:600}
+.card .hint{font-size:12px;color:var(--ink-3);margin:0 0 8px}
+.chart{width:100%;height:380px}
+.chart.tall{height:460px}.chart.short{height:300px}.chart.hbar{height:430px}
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 10px;font-size:13px;color:var(--ink-2)}
+.seg{display:inline-flex;background:#eef2f8;border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--ink-2);font-family:inherit}
+.seg button.on{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 3px rgba(16,32,56,.12)}
+.insights{margin:16px 0 0;padding:14px 18px;background:#f7f9fd;border-left:3px solid var(--brand);
+  border-radius:8px;font-size:13.5px;color:var(--ink-2)}
+.insights b{color:var(--ink)}
+.insights ul{margin:6px 0 0;padding-left:18px}
+.insights li{margin:3px 0}
+.note{font-size:12.5px;color:var(--ink-3);margin-top:12px}
+footer{max-width:1320px;margin:0 auto;padding:0 24px 60px;color:var(--ink-3);font-size:12.5px}
+.disclaimer{background:#f7f9fd;border:1px solid var(--line);border-left:3px solid #b9c6da;
+  border-radius:12px;padding:18px 22px 20px;margin-bottom:22px;scroll-margin-top:70px}
+.disclaimer h2{margin:0 0 8px;font-size:15px}
+.disclaimer p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.9}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;font-weight:600;color:var(--ink-3);font-size:11.5px;border-bottom:1px solid var(--line);padding:7px 9px;white-space:nowrap}
+.tbl td{padding:7px 9px;border-bottom:1px solid #f1f4f8}
+.tbl tr:hover td{background:#fafbfd}
+.tbl .r{text-align:right}
+.bar-mini{display:inline-block;height:8px;border-radius:4px;background:var(--accent);vertical-align:middle}
+.pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:#eef2f8;color:var(--ink-2);margin:0 6px 6px 0}
+.pill.t{background:#fdeee1;color:#a2460a}
+@media(max-width:900px){.grid.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="logo">培</span><span>全职岗位培训标注洞察<small>2026.01 – 2026.09</small></span></div>
+    <nav class="menu">
+      <a href="#trend">趋势</a>
+      <a href="#job">职位与城市</a>
+      <a href="#edu">学历·经验·规模</a>
+      <a href="#salary">薪酬</a>
+      <a href="#skill">技能与描述</a>
+      <a href="#benefit">福利结构</a>
+      <a href="#about">数据说明</a>
+    </nav>
+    <div class="seg" id="caliber">
+      <button data-v="all" class="on">全部岗位</button>
+      <button data-v="sub">仅填写福利的岗位</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="hero">
+    <h1>全职岗位的培训标注：现状与趋势</h1>
+    <p class="sub">以「岗位福利」字段中的培训类福利为主口径 · 时间区间 2026 年 1 月 1 日 – 2026 年 9 月 30 日 · 共 4,423,717 条岗位记录</p>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <section class="panel" id="trend">
+    <div class="panel-head"><h2>① 培训标注率随时间的变化趋势</h2><span class="tag">时间趋势</span></div>
+    <p class="panel-desc">按月统计培训标注岗位的占比。「岗位福利」字段并非必填，只有约 46.7% 的岗位填写了福利，因此同时给出三种口径与福利字段填写率作对照。</p>
+    <div class="grid two">
+      <div class="card"><h3>三种识别口径的月度占比</h3>
+        <p class="hint">A=岗位福利标注培训；B=技能标签含培训类标签；C=岗位描述提及「培训」</p>
+        <div class="chart" id="ch-lens"></div></div>
+      <div class="card"><h3>培训标注率与福利字段填写率</h3>
+        <p class="hint">两条培训标注率线（左轴），虚线为福利字段填写率（右轴）</p>
+        <div class="chart" id="ch-rate"></div></div>
+    </div>
+    <div class="grid two" style="margin-top:18px">
+      <div class="card"><h3>岗位投放量与培训岗位量</h3>
+        <p class="hint">柱状图为各月岗位总量（左轴，万条），折线为培训标注岗位量（右轴，万条）</p>
+        <div class="chart" id="ch-vol"></div></div>
+      <div class="card"><h3>培训类型结构随时间演变</h3>
+        <p class="hint">各类合计 100%，按岗位首次命中的培训类型归类</p>
+        <div class="chart" id="ch-trtype"></div></div>
+    </div>
+    <div class="insights" id="in-trend"></div>
+  </section>
+
+  <section class="panel" id="job">
+    <div class="panel-head"><h2>② 提供培训的岗位集中在哪些职位与城市</h2><span class="tag">职位 / 城市 / 行业</span></div>
+    <p class="panel-desc">职业类别已归并为 15 个大类。热力图与条形图均可通过顶部「全部岗位 / 仅填写福利的岗位」切换口径。</p>
+    <div class="grid two">
+      <div class="card"><h3>职业大类的培训标注率</h3><p class="hint">柱长为培训标注率，悬停查看岗位量与薪资</p>
+        <div class="chart hbar" id="ch-occGroup"></div></div>
+      <div class="card"><h3>细分职业类别 TOP20（按投放量）</h3><p class="hint">本图固定为全部岗位口径</p>
+        <div class="chart hbar" id="ch-occ"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px"><h3>职业大类 × 月份：培训标注率热力图</h3>
+      <p class="hint">颜色越深表示当月该职业大类的培训标注率越高，格内数字为百分数（此图固定为全部岗位口径）</p>
+      <div class="chart tall" id="ch-catmonth"></div></div>
+    <div class="grid two" style="margin-top:18px">
+      <div class="card"><h3>城市等级的培训标注率</h3><p class="hint">一线 → 三线及以下</p>
+        <div class="chart" id="ch-tier"></div></div>
+      <div class="card"><h3>重点行业 TOP20（按投放量）</h3><p class="hint">保险、银行等「人海销售」行业最高</p>
+        <div class="chart hbar" id="ch-industry"></div></div>
+    </div>
+    <div class="grid two" style="margin-top:18px">
+      <div class="card"><h3>重点城市 TOP20（按投放量）</h3><p class="hint">柱长为培训标注率</p>
+        <div class="chart hbar" id="ch-city"></div></div>
+      <div class="card"><h3>城市分布：培训标注率 × 培训岗位平均月薪</h3>
+        <p class="hint">气泡大小表示岗位投放量，取投放量 TOP25 城市</p>
+        <div class="chart" id="ch-cityscatter"></div></div>
+    </div>
+    <div class="grid two" style="margin-top:18px">
+      <div class="card"><h3>培训标注率最高的城市</h3><p class="hint">仅统计岗位投放量 ≥ 2 万条的城市</p>
+        <div class="chart hbar" id="ch-cityhi"></div></div>
+      <div class="card"><h3>培训标注率最低的城市</h3><p class="hint">仅统计岗位投放量 ≥ 2 万条的城市</p>
+        <div class="chart hbar" id="ch-citylo"></div></div>
+    </div>
+    <div class="insights" id="in-job"></div>
+  </section>
+
+  <section class="panel" id="edu">
+    <div class="panel-head"><h2>③ 学历、经验与企业规模</h2><span class="tag">门槛画像</span></div>
+    <p class="panel-desc">培训标注与「低门槛」强相关：学历越低、经验越宽松，标注率越高；大企业更愿意把培训写进福利。</p>
+    <div class="grid two">
+      <div class="card"><h3>学历要求</h3><p class="hint">高中 / 中专的培训标注率远高于本科 / 硕士</p>
+        <div class="chart" id="ch-edu"></div></div>
+      <div class="card"><h3>经验要求</h3><p class="hint">「无经验」岗位的培训标注率最高</p>
+        <div class="chart" id="ch-exp"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="controls"><span>显示：</span><div class="seg" id="eduexp-mode">
+        <button data-v="rate" class="on">培训标注率</button>
+        <button data-v="count">培训岗位数</button>
+      </div><span style="color:var(--ink-3)">学历 × 经验 组合热度</span></div>
+      <h3>学历 × 经验 组合的培训热度</h3>
+      <p class="hint">横轴为学历要求，纵轴为经验要求；色阶见底部图例，格内数字为对应值</p>
+      <div class="chart tall" id="ch-eduexp"></div>
+    </div>
+    <div class="card" style="margin-top:18px"><h3>企业规模</h3>
+      <p class="hint">万人以上大型企业的培训标注率显著更高</p>
+      <div class="chart" id="ch-scale"></div></div>
+    <div class="insights" id="in-edu"></div>
+  </section>
+
+  <section class="panel" id="salary">
+    <div class="panel-head"><h2>④ 薪酬：培训岗位更值钱</h2><span class="tag">均值 / 分位 / 分布</span></div>
+    <p class="panel-desc">薪酬按「薪资水平」区间中点折算为元/月，忽略「·13 薪」等信息；「面议」等不可解析值（1.85%）不纳入统计。</p>
+    <div class="grid two">
+      <div class="card"><h3>薪资区间的培训标注率</h3><p class="hint">呈倒 U 型：中高薪区间标注率最高</p>
+        <div class="chart" id="ch-salbucket"></div></div>
+      <div class="card"><h3>薪酬分位数对比</h3><p class="hint">25 / 50 / 75 分位月薪（元），培训岗位全面占优</p>
+        <div class="chart" id="ch-quantile"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px"><h3>薪酬分布：培训岗位 vs 其他岗位</h3>
+      <p class="hint">纵轴为该组岗位占比（组内归一化），横轴为月薪；虚线为中位数。培训岗位的分布整体右移</p>
+      <div class="chart" id="ch-saldist"></div></div>
+    <div class="insights" id="in-salary"></div>
+  </section>
+
+  <section class="panel" id="skill">
+    <div class="panel-head"><h2>⑤ 技能标签与岗位描述</h2><span class="tag">技能 / 描述</span></div>
+    <p class="panel-desc">培训岗位需要的技能标签并不更少，岗位描述也更长、更强调「上手 / 培养」而非既有资质。</p>
+    <div class="grid two">
+      <div class="card"><h3>技能标签数量分布</h3><p class="hint">各组内部归一化，培训岗位标签数整体略高</p>
+        <div class="chart" id="ch-skhist"></div></div>
+      <div class="card"><h3>岗位描述长度分布</h3><p class="hint">培训岗位的岗位描述更长、信息量更大</p>
+        <div class="chart" id="ch-dlhist"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px"><h3>岗位描述中的关键词命中率</h3>
+      <p class="hint">口径：仅填写了岗位福利的岗位；培训岗位更常写「无经验可 / 带教」，更少要求证书与外语</p>
+      <div class="chart" id="ch-desckw"></div></div>
+    <div class="card" style="margin-top:18px"><h3>培训岗位的高辨识度技能标签</h3>
+      <p class="hint">比较两组标签的覆盖率（占本组岗位比例），仅列样本量足够的标签</p>
+      <div class="tblwrap" id="skill-lift"></div></div>
+    <div class="insights" id="in-skill"></div>
+  </section>
+
+  <section class="panel" id="benefit">
+    <div class="panel-head"><h2>⑥ 福利结构：培训与「正规雇佣」绑定</h2><span class="tag">福利</span></div>
+    <p class="panel-desc">剔除培训类标签后统计其他福利：培训岗位的其他福利项数更多，且与「五险一金 / 双休 / 晋升」正相关、与「包吃住 / 日结」负相关。</p>
+    <div class="grid two">
+      <div class="card"><h3>其他福利项数分布</h3><p class="hint">培训标注率随福利项数单调上升</p>
+        <div class="chart" id="ch-othhist"></div></div>
+      <div class="card"><h3>福利主题覆盖率差异</h3><p class="hint">培训岗位覆盖率 − 其他岗位覆盖率（百分点）</p>
+        <div class="chart" id="ch-themediff"></div></div>
+    </div>
+    <div class="grid two" style="margin-top:18px">
+      <div class="card"><h3>培训岗位的高频共现福利</h3><p class="hint">覆盖率＝该福利在组内岗位中的出现比例</p>
+        <div class="tblwrap" id="wel-common"></div></div>
+      <div class="card"><h3>与培训「负相关」的福利</h3><p class="hint">在培训岗位中出现明显更少的福利（覆盖率之比最低）</p>
+        <div class="tblwrap" id="wel-drop"></div></div>
+    </div>
+    <div class="insights" id="in-benefit"></div>
+  </section>
+
+  <section class="disclaimer" id="about">
+    <h2>⑦ 数据说明与免责声明</h2>
+    <p>
+      本页基于「企业招聘数据_全职岗位_202601_202609.csv」构建，共 4,423,717 条记录、12 个字段，时间范围为 2026 年 1 月 1 日 – 2026 年 9 月 30 日。<br>
+      <b>培训识别口径</b>：岗位福利列表中任一标签包含
+      <span class="pill t">培训</span><span class="pill t">带教</span><span class="pill t">带培</span><span class="pill t">师带徒</span><span class="pill t">老带新</span><span class="pill t">学徒</span><span class="pill t">培养</span><span class="pill t">带薪学习</span><span class="pill t">学习机会</span><span class="pill t">入职指导</span>
+      等关键词（共命中 182 种不同福利标签，逐条核查均为「企业向岗位提供培训/带教」含义）。<br>
+      <b>注意事项</b>：①「岗位福利」并非必填，仅 46.7% 的岗位填写了该字段，故本页同时提供「全部岗位」与「仅填写福利的岗位」两种口径；②以「公司名称 + 岗位描述」判重，约 27.9% 的记录为同一岗位的重复投放，趋势反映的是招聘投放量而非独立岗位数；③「岗位福利」中的培训是<b>企业主动写出的培训信息</b>，未标注不代表无培训；④薪酬为区间中点折算，算术平均受高薪尾部影响，请结合中位数与分位数理解。<br>
+      本页为静态可视化页面，图表由 ECharts 在本地渲染，数据随页面一并内嵌，无外部请求；所有结论仅供研究参考，不构成任何求职或招聘建议。
+    </p>
+  </section>
+</main>
+
+<footer>数据来源：企业招聘数据_全职岗位_202601_202609.csv · 4,423,717 条记录 · 培训识别口径：岗位福利关键词匹配 · 版本 2026-10</footer>
+
+<script src="assets/echarts.min.js"></script>
+<script src="assets/data.js"></script>
+<script src="assets/echarts.min.js"></script>
+<script src="assets/data.js"></script>
+<script>
+/* ========================================================================= */
+/* 全职岗位培训标注洞察 —— 图表脚本（ECharts）                                 */
+/* ========================================================================= */
+(function(){
+'use strict';
+
+var D = window.DATA;
+var MONTHS = D.meta.months, MLABELS = D.meta.monthLabels, N = MONTHS.length;
+var CAL = 'all';
+
+var C = ['#1d5bd6','#12b3a0','#f2994a','#8b5cf6','#eb5757','#2d9cdb','#27ae60',
+         '#f2c94c','#9b51e0','#00b8d9','#ff8a65','#4db6ac','#7e57c2','#c0ca33',
+         '#f06292','#5c6bc0','#26a69a','#ffb300','#ef5350','#42a5f5'];
+var TRAIN = '#f2994a', TRAIN2 = '#e8590c', NO = '#9aabc2', BRAND = '#1d5bd6', TEAL = '#12b3a0';
+var TRTYPE = D.trtype.types;
+var TCOLOR = {'带薪培训':'#e8590c','专业/技能培训':'#1d5bd6','免费培训':'#12b3a0',
+              '带教/师徒制':'#8b5cf6','其他培训':'#aab6c9'};
+var RAMP_BLUE = ['#f2f6fc','#c3d8f7','#7fabe8','#3f7fd4','#1d4f96'];
+var RAMP_ORANGE = ['#fff4ec','#ffd9bd','#ffb27a','#f27e3c','#b4450a'];
+
+function fmtInt(n){ if(n===null||n===undefined) return '—';
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fp(v,d){ if(v===null||v===undefined) return '—';
+  return (v*100).toFixed(d===undefined?1:d)+'%'; }
+function money(v){ return v==null ? '—' : '¥'+fmtInt(v); }
+function wan(v){ return (v/10000).toFixed(2); }
+
+var charts = [];
+function make(dom, opt){
+  if(!dom) return null;
+  var c = echarts.init(dom, null, {renderer:'canvas'});
+  c.setOption(opt); charts.push(c); return c;
+}
+function disposeAll(){ charts.forEach(function(c){ c.dispose(); }); charts = []; }
+var rt=null;
+window.addEventListener('resize', function(){ clearTimeout(rt);
+  rt=setTimeout(function(){ charts.forEach(function(c){ c.resize(); }); },120); });
+
+function axisLabel(o){ var a={color:'#8296ad',fontSize:11}; if(o) for(var k in o) a[k]=o[k]; return a; }
+var AXIS_LINE={lineStyle:{color:'#e5eaf1'}};
+function tooltipBase(){ return {trigger:'axis',backgroundColor:'rgba(255,255,255,.97)',
+  borderColor:'#e5eaf1',borderWidth:1,textStyle:{color:'#16202e',fontSize:12},
+  extraCssText:'box-shadow:0 6px 20px rgba(16,32,56,.12);border-radius:8px;'}; }
+
+function dim(name){ return (CAL==='sub' && D.dimsSub[name]) ? D.dimsSub[name] : D.dims[name]; }
+
+/* ---------- 横向条形（培训标注率） ---------- */
+function hbar(dom, arr, opts){
+  opts = opts || {};
+  var order = arr.names.map(function(_,i){return i;})
+    .sort(function(a,b){ return arr.rate[b]-arr.rate[a]; });
+  var names=[], vals=[];
+  order.forEach(function(i){ names.push(arr.names[i]); vals.push(arr.rate[i]); });
+  var opt = {
+    tooltip: Object.assign(tooltipBase(), {axisPointer:{type:'shadow'},
+      formatter:function(ps){ var p=ps[0], i=order[p.dataIndex];
+        return '<b>'+arr.names[i]+'</b><br/>培训标注率：'+fp(arr.rate[i],2)+
+          '<br/>培训岗位：'+fmtInt(arr.ntr[i])+' / '+fmtInt(arr.n[i])+
+          '<br/>培训岗位平均月薪：'+money(arr.salTr[i])+
+          '<br/>其他岗位平均月薪：'+money(arr.salNo[i]); }}),
+    grid:{left:8,right:52,top:8,bottom:8,containLabel:true},
+    xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'%';}}),
+      splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    series:[{type:'bar',data:vals,barMaxWidth:16,
+      itemStyle:{color:opts.color||TRAIN,borderRadius:[0,3,3,0]},
+      label:{show:true,position:'right',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value,1);}}}]};
+  make(dom, opt);
+}
+
+/* ---------- 学历×经验 / 职业×月份 热力图 ---------- */
+function heatmap(dom, cfg){
+  var data=[], max=0;
+  for(var i=0;i<cfg.rows.length;i++) for(var j=0;j<cfg.cols.length;j++){
+    var v = cfg.mat[i][j];
+    if(v==null) continue;
+    data.push([j,i,v]);
+    if(v>max) max=v;
+  }
+  var opt = {
+    tooltip:{trigger:'item',backgroundColor:'rgba(255,255,255,.97)',borderColor:'#e5eaf1',
+      textStyle:{color:'#16202e',fontSize:12}, formatter:cfg.tip},
+    grid:{left:8,right:16,top:12,bottom:64,containLabel:true},
+    xAxis:{type:'category',data:cfg.cols,splitArea:{show:true},axisLabel:axisLabel({fontSize:11}),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'category',data:cfg.rows,splitArea:{show:true},axisLabel:axisLabel({fontSize:11}),axisLine:AXIS_LINE,axisTick:{show:false}},
+    visualMap:{min:0,max:max,calculable:true,orient:'horizontal',left:'center',bottom:4,
+      itemWidth:12,itemHeight:80,textStyle:axisLabel({fontSize:10}),
+      inRange:{color:cfg.ramp||RAMP_ORANGE},
+      formatter:function(v){ return cfg.vfmt ? cfg.vfmt(v) : v; }},
+    series:[{type:'heatmap',data:data,label:{show:true,fontSize:10,color:'#fff',
+      formatter:function(p){ return p.data[2] > max*0.1 ? cfg.cell(p.data[2]) : ''; }},
+      emphasis:{itemStyle:{shadowBlur:8,shadowColor:'rgba(0,0,0,.25)'}}}]
+  };
+  make(dom, opt);
+}
+
+/* ---------- KPI ---------- */
+function renderKpis(){
+  var M = D.meta;
+  var salLift = M.meanSalaryTrain/M.meanSalaryNoSub - 1;
+  var items = [
+    {v:fmtInt(M.total), l:'岗位记录总数（条）'},
+    {v:fmtInt(M.trainRows), l:'培训标注岗位（占 '+fp(M.trainRate,2)+'）'},
+    {v:String(M.cityCount), l:'覆盖城市（个）'},
+    {v:money(M.meanSalaryTrain), l:'培训岗位平均月薪（对照 +'+(salLift*100).toFixed(1)+'%）'},
+    {v:fp(M.nonemptyWelfareRate,1), l:'填写了「岗位福利」的比例'},
+    {v:MONTHS[0].replace('-','.')+' – '+MONTHS[N-1].replace('-','.'), l:'时间区间（'+N+' 个月）'}
+  ];
+  document.getElementById('kpis').innerHTML = items.map(function(it){
+    return '<div class="kpi"><div class="v num">'+it.v+'</div><div class="l">'+it.l+'</div></div>';
+  }).join('');
+}
+
+/* ---------- ① 趋势 ---------- */
+function renderTrend(){
+  var T = D.trend;
+  make(document.getElementById('ch-lens'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[
+      {name:'A 岗位福利标注培训',type:'line',smooth:true,symbolSize:6,data:T.lensA.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:TRAIN2},lineStyle:{width:2.6}},
+      {name:'B 技能标签含培训',type:'line',smooth:true,symbolSize:6,data:T.lensB.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:BRAND}},
+      {name:'C 描述提及培训',type:'line',smooth:true,symbolSize:6,data:T.lensC.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:TEAL}}
+    ]});
+
+  make(document.getElementById('ch-rate'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v/100,1);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:48,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:[
+      {type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+      {type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{show:false}}
+    ],
+    series:[
+      {name:'培训标注率（全部岗位）',type:'line',smooth:true,symbolSize:6,yAxisIndex:0,
+       data:T.rateAll.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:TRAIN2},lineStyle:{width:2.6}},
+      {name:'培训标注率（已填福利岗位）',type:'line',smooth:true,symbolSize:6,yAxisIndex:0,
+       data:T.rateSub.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:TEAL}},
+      {name:'福利字段填写率',type:'line',smooth:true,symbolSize:6,yAxisIndex:1,
+       data:T.fillRate.map(function(v){return +(v*100).toFixed(1);}),
+       itemStyle:{color:'#c9b28a'},lineStyle:{type:'dashed'}}
+    ]});
+
+  make(document.getElementById('ch-vol'), {
+    tooltip:Object.assign(tooltipBase(),{formatter:function(ps){
+      var i=ps[0].dataIndex;
+      return MLABELS[i]+'<br/>岗位总量：'+wan(T.monthCounts[i])+' 万<br/>培训岗位：'+wan(T.trainCounts[i])+' 万（'+fp(T.rateAll[i],2)+'）';}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:48,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:MLABELS,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:[
+      {type:'value',name:'万条',axisLabel:axisLabel(),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+      {type:'value',name:'万条',axisLabel:axisLabel(),splitLine:{show:false}}
+    ],
+    series:[
+      {name:'岗位总量',type:'bar',barMaxWidth:26,data:T.monthCounts.map(function(v){return +(v/10000).toFixed(2);}),
+       itemStyle:{color:'#c7d3e6',borderRadius:[4,4,0,0]}},
+      {name:'培训岗位',type:'line',smooth:true,yAxisIndex:1,symbolSize:6,
+       data:T.trainCounts.map(function(v){return +(v/10000).toFixed(2);}),itemStyle:{color:TRAIN2},lineStyle:{width:2.6}}
+    ]});
+
+  make(document.getElementById('ch-trtype'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v/100,1);}}),
+    legend:{type:'scroll',top:0,left:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',max:100,axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:TRTYPE.map(function(t,i){
+      return {name:t,type:'line',stack:'s',smooth:true,symbol:'none',
+        areaStyle:{opacity:.92},lineStyle:{width:.6,color:'#fff'},
+        itemStyle:{color:TCOLOR[t]},
+        data:D.trtype.matrix[i].map(function(v){return +(v*100).toFixed(1);})};
+    })
+  });
+
+  var r0 = T.rateAll[0], r1 = T.rateAll[N-1];
+  var r0s = T.rateSub[0], r1s = T.rateSub[N-1];
+  var f0 = T.fillRate[0], f1 = T.fillRate[N-1];
+  var d0 = T.lensC[0], d1 = T.lensC[N-1];
+  var tot = D.trtype.total;
+  document.getElementById('in-trend').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>岗位投放呈明显季节性：<b>3 月为全年峰值（'+wan(T.monthCounts[2])+' 万条）</b>，2 月受春节影响为低谷（'+wan(T.monthCounts[1])+' 万条）。</li>'+
+    '<li>培训标注率逐月回落：从 1 月 <b>'+fp(r0,2)+'</b> 降至 9 月 <b>'+fp(r1,2)+'</b>（相对降幅 '+((1-r1/r0)*100).toFixed(0)+'%）；在已填福利的岗位内部也从 '+fp(r0s,2)+' 降至 '+fp(r1s,2)+'。</li>'+
+    '<li>同期福利字段填写率从 '+fp(f0,1)+' 降到 '+fp(f1,1)+'、描述提及培训从 '+fp(d0,1)+' 降到 '+fp(d1,1)+'——三口径同向下降，更像<b>福利信息披露的整体收缩</b>。</li>'+
+    '<li>培训类型以 <b>带薪培训</b>为主（'+fp(tot[0]/D.meta.trainRows,1)+'），其次专业/技能培训 '+fp(tot[1]/D.meta.trainRows,1)+'、免费培训 '+fp(tot[2]/D.meta.trainRows,1)+'。</li></ul>';
+}
+
+/* ---------- ② 职位与城市 ---------- */
+function renderJob(){
+  var g = dim('occGroup');
+  hbar(document.getElementById('ch-occGroup'), g, {color:TRAIN2});
+  hbar(document.getElementById('ch-occ'), dim('occ'), {color:BRAND});
+
+  var cm = D.catMonth;
+  function rowMax(row){ var m=0; row.forEach(function(v){ if(v!=null) m=Math.max(m,v); }); return m; }
+  var order = cm.groups.map(function(_,i){return i;})
+    .sort(function(a,b){ return rowMax(cm.rate[b])-rowMax(cm.rate[a]); });
+  var rows = order.map(function(i){ return cm.groups[i]; });
+  var mat = order.map(function(i){ return cm.rate[i]; });
+  var cnt = order.map(function(i){ return cm.count[i]; });
+  var ctr = order.map(function(i){ return cm.countTr[i]; });
+  heatmap(document.getElementById('ch-catmonth'), {
+    rows:rows, cols:MONTHS, mat:mat, ramp:RAMP_ORANGE,
+    vfmt:function(v){ return fp(v,1); }, cell:function(v){ return (v*100).toFixed(0); },
+    tip:function(p){
+      var r=p.data[1], c=p.data[0];
+      return '<b>'+rows[r]+'</b><br/>'+MONTHS[c]+'：'+fp(mat[r][c],1)+
+        '<br/>培训岗位 '+fmtInt(ctr[r][c])+' / 岗位 '+fmtInt(cnt[r][c]); }
+  });
+
+  // 城市等级（柱状）
+  var tier = dim('tier');
+  make(document.getElementById('ch-tier'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);}}),
+    grid:{left:8,right:14,top:14,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:tier.names,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[{type:'bar',barMaxWidth:46,data:tier.rate.map(function(v){return +(v*100).toFixed(2);}),
+      itemStyle:{color:TRAIN2,borderRadius:[5,5,0,0]},
+      label:{show:true,position:'top',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value/100,1);}}}]});
+
+  hbar(document.getElementById('ch-industry'), dim('industry'), {color:TEAL});
+  hbar(document.getElementById('ch-city'), dim('city'), {color:'#8b5cf6'});
+
+  // 城市散点
+  var cc = dim('city');
+  var ord2 = cc.names.map(function(_,i){return i;}).sort(function(a,b){return cc.n[b]-cc.n[a];}).slice(0,25);
+  make(document.getElementById('ch-cityscatter'), {
+    tooltip:{trigger:'item',backgroundColor:'rgba(255,255,255,.97)',borderColor:'#e5eaf1',
+      textStyle:{color:'#16202e',fontSize:12},
+      formatter:function(p){ var i=ord2[p.dataIndex];
+        return '<b>'+cc.names[i]+'</b><br/>培训标注率：'+fp(cc.rate[i],2)+
+          '<br/>培训岗位平均月薪：'+money(cc.salTr[i])+'<br/>岗位量：'+fmtInt(cc.n[i]);}},
+    grid:{left:8,right:20,top:16,bottom:8,containLabel:true},
+    xAxis:{type:'value',name:'培训岗位平均月薪（元）',axisLabel:axisLabel(),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    yAxis:{type:'value',name:'培训标注率',axisLabel:axisLabel({formatter:function(v){return (v*100)+'%';}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[{type:'scatter',data:ord2.map(function(i){ return [cc.salTr[i], cc.rate[i], cc.n[i]]; }),
+      symbolSize:function(v){ return 6+24*Math.sqrt(v[2]/Math.max.apply(null,cc.n)); },
+      itemStyle:{color:'rgba(29,91,214,.30)',borderColor:BRAND,borderWidth:1.3},
+      label:{show:true,position:'top',fontSize:10,color:'#4a5a70',formatter:function(p){ return cc.names[ord2[p.dataIndex]]; }},
+      emphasis:{label:{show:true},itemStyle:{color:'rgba(29,91,214,.5)'}}}]});
+
+  hbarRows(document.getElementById('ch-cityhi'), D.cityHi, TRAIN2);
+  hbarRows(document.getElementById('ch-citylo'), D.cityLo, BRAND);
+
+  var occ = D.dims.occ;
+  var oi = occ.names.map(function(_,i){return i;}).sort(function(a,b){return occ.n[b]-occ.n[a];});
+  var maxI=oi[0], minI=oi[oi.length-1];
+  var cat = dim('occGroup');
+  var topCat = cat.names[cat.rate.indexOf(Math.max.apply(null,cat.rate))];
+  var botCat = cat.names[cat.rate.indexOf(Math.min.apply(null,cat.rate))];
+  var ti = dim('tier');
+  var ind = D.dims.industry;
+  var ii = ind.names.map(function(_,i){return i;}).sort(function(a,b){return ind.n[b]-ind.n[a];});
+  document.getElementById('in-job').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>培训高度集中在低门槛的服务与销售岗位：<b>'+topCat+'</b>最高（'+fp(Math.max.apply(null,cat.rate),1)+
+    '），其后是教育/培训、生活服务、客服与销售；<b>'+botCat+'</b>最低（'+fp(Math.min.apply(null,cat.rate),2)+'）。</li>'+
+    '<li>细分到职业类别，<b>'+occ.names[maxI]+'</b>高达 '+fp(occ.rate[maxI],1)+'，而 <b>'+occ.names[minI]+'</b>仅 '+fp(occ.rate[minI],2)+'。</li>'+
+    '<li>城市呈「越下沉越常见」：一线 '+fp(ti.rate[0],1)+' ↔ 三线及以下 '+fp(ti.rate[ti.rate.length-1],1)+
+    '；重点城市中郑州、杭州较高，北京最低。地级市中潍坊（'+fp(D.cityHi[0].rate,1)+'）为明显离群值。</li>'+
+    '<li>行业分化极大：保险、银行等「人海销售 + 标准化话术」行业遥遥领先，而制造 / 半导体 / 设备类行业普遍低于 3%。</li></ul>';
+}
+
+function hbarRows(dom, rows, color){
+  var order = rows.map(function(_,i){return i;}).sort(function(a,b){return rows[b].rate-rows[a].rate;});
+  var names=order.map(function(i){return rows[i].name;});
+  var vals=order.map(function(i){return rows[i].rate;});
+  make(dom, {
+    tooltip:Object.assign(tooltipBase(),{axisPointer:{type:'shadow'},formatter:function(ps){
+      var i=order[ps[0].dataIndex];
+      return '<b>'+rows[i].name+'</b><br/>培训标注率：'+fp(rows[i].rate,2)+
+        '<br/>培训岗位：'+fmtInt(rows[i].ntr)+' / '+fmtInt(rows[i].n);}}),
+    grid:{left:8,right:46,top:8,bottom:8,containLabel:true},
+    xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'%';}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    series:[{type:'bar',data:vals,barMaxWidth:16,itemStyle:{color:color,borderRadius:[0,3,3,0]},
+      label:{show:true,position:'right',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value,1);}}}]});
+}
+
+/* ---------- ③ 学历·经验·规模 ---------- */
+var eduexpMode = 'rate';
+function renderEdu(){
+  var edu = dim('edu'), exp = dim('exp'), scale = dim('scale');
+  rateBar(document.getElementById('ch-edu'), edu, TRAIN2);
+  rateBar(document.getElementById('ch-exp'), exp, BRAND);
+  renderEduExp();
+  rateBar(document.getElementById('ch-scale'), scale, TEAL);
+
+  var ehi = edu.rate.indexOf(Math.max.apply(null,edu.rate));
+  var elo = edu.rate.indexOf(Math.min.apply(null,edu.rate));
+  var xhi = exp.rate.indexOf(Math.max.apply(null,exp.rate));
+  var xlo = exp.rate.indexOf(Math.min.apply(null,exp.rate));
+  var shi = scale.rate.indexOf(Math.max.apply(null,scale.rate));
+  document.getElementById('in-edu').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>学历是明确的反向关系：<b>'+edu.names[ehi]+'</b>最高（'+fp(edu.rate[ehi],1)+'），<b>'+edu.names[elo]+'</b>最低（'+fp(edu.rate[elo],2)+'）；学历越低越常见培训标注。</li>'+
+    '<li>经验同样反向：<b>'+exp.names[xhi]+'</b>岗位的培训标注率 '+fp(exp.rate[xhi],1)+'，而 '+exp.names[xlo]+' 仅 '+fp(exp.rate[xlo],2)+'——培训被用作<b>补足经验门槛的替代方案</b>。</li>'+
+    '<li>学历 × 经验热力图显示，培训标注最密集的格子集中在<b>高中/中专/学历不限 × 无经验/经验不限</b>的左上区域。</li>'+
+    '<li>企业规模上，<b>'+scale.names[shi]+'</b>的培训标注率（'+fp(scale.rate[shi],1)+'）是中小规模企业的 3 倍以上。</li></ul>';
+}
+
+function rateBar(dom, arr, color){
+  make(dom, {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);},
+      formatter:null}),
+    grid:{left:8,right:14,top:14,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:arr.names,axisLabel:axisLabel({interval:0,rotate:30}),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[{type:'bar',barMaxWidth:40,data:arr.rate.map(function(v){return +(v*100).toFixed(2);}),
+      itemStyle:{color:color,borderRadius:[5,5,0,0]},
+      label:{show:true,position:'top',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value/100,1);}}}]});
+}
+
+function renderEduExp(){
+  var src = D.eduExp[CAL==='sub'?'sub':'all'];
+  var mat = eduexpMode==='rate'
+    ? src.count.map(function(row,i){ return row.map(function(v,j){ return v ? src.train[i][j]/v : null; }); })
+    : src.train;
+  var isRate = eduexpMode==='rate';
+  heatmap(document.getElementById('ch-eduexp'), {
+    rows:src.exp, cols:src.edu, mat:mat, ramp:isRate?RAMP_ORANGE:RAMP_BLUE,
+    vfmt:function(v){ return isRate ? fp(v,1) : fmtInt(v); },
+    cell:function(v){ return isRate ? (v*100).toFixed(0) : fmtInt(v); },
+    tip:function(p){
+      var r=p.data[1], c=p.data[0];
+      var cnt=src.count[r][c], tr=src.train[r][c];
+      return '<b>'+src.edu[c]+' × '+src.exp[r]+'</b><br/>'+
+        (isRate ? '培训标注率：'+fp(cnt?tr/cnt:0,1) : '培训岗位数：'+fmtInt(tr))+
+        '<br/>岗位数：'+fmtInt(cnt)+'（占全部 '+fp(cnt/D.meta.total,2)+'）'+
+        '<br/>培训岗位：'+fmtInt(tr); }
+  });
+}
+
+/* ---------- ④ 薪酬 ---------- */
+function renderSalary(){
+  var sb = dim('salBucket');
+  rateBar(document.getElementById('ch-salbucket'), sb, '#8b5cf6');
+
+  var Q = D.meta.salQ;
+  make(document.getElementById('ch-quantile'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return money(v);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:['P25','中位数 P50','P75'],axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v/1000)+'k';}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[
+      {name:'培训岗位',type:'bar',barMaxWidth:42,data:Q.train,itemStyle:{color:TRAIN2,borderRadius:[5,5,0,0]},
+       label:{show:true,position:'top',color:'#4a5a70',fontSize:11,formatter:function(p){return fmtInt(p.value);}}},
+      {name:'其他岗位',type:'bar',barMaxWidth:42,data:Q.no,itemStyle:{color:'#9aabc2',borderRadius:[5,5,0,0]},
+       label:{show:true,position:'top',color:'#4a5a70',fontSize:11,formatter:function(p){return fmtInt(p.value);}}}
+    ]});
+
+  var S = D.salary;
+  var xl=[];
+  for(var i=0;i<S.train.length;i++) xl.push(i%10===0 ? String(i*S.bin/1000)+'k' : '');
+  var med1 = D.meta.salQ.train[1], med2 = D.meta.salQ.no[1];
+  var medIdx1 = Math.round(med1/S.bin), medIdx2 = Math.round(med2/S.bin);
+  make(document.getElementById('ch-saldist'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v*100,2);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:xl,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[
+      {name:'培训岗位',type:'line',smooth:true,symbol:'none',
+       data:S.train.map(function(v){return +(v*100).toFixed(3);}),itemStyle:{color:TRAIN2},
+       areaStyle:{opacity:.18},lineStyle:{width:2.2},
+       markLine:{symbol:'none',label:{formatter:'中位 '+fmtInt(med1),color:TRAIN2,fontSize:10,position:'insideEndTop'},
+         data:[{xAxis:medIdx1}],lineStyle:{color:TRAIN2,type:'dashed'}}},
+      {name:'其他岗位',type:'line',smooth:true,symbol:'none',
+       data:S.no.map(function(v){return +(v*100).toFixed(3);}),itemStyle:{color:'#9aabc2'},
+       areaStyle:{opacity:.15},lineStyle:{width:2.2},
+       markLine:{symbol:'none',label:{formatter:'中位 '+fmtInt(med2),color:'#9aabc2',fontSize:10,position:'insideEndBottom'},
+         data:[{xAxis:medIdx2}],lineStyle:{color:'#9aabc2',type:'dashed'}}}
+    ]});
+
+  var M = D.meta;
+  var pk = sb.rate.indexOf(Math.max.apply(null,sb.rate));
+  document.getElementById('in-salary').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>培训岗位的薪酬分布整体右移：P25/P50/P75 分别为 <b>'+fmtInt(Q.train[0])+' / '+fmtInt(Q.train[1])+' / '+fmtInt(Q.train[2])+
+    '</b>，全面高于其他岗位（'+fmtInt(Q.no[0])+' / '+fmtInt(Q.no[1])+' / '+fmtInt(Q.no[2])+'）。</li>'+
+    '<li>在同样填写了福利的岗位中，培训岗位平均月薪 <b>'+money(M.meanSalaryTrain)+'</b>，比其他岗位高 '+((M.meanSalaryTrain/M.meanSalaryNoSub-1)*100).toFixed(1)+'%（'+money(M.meanSalaryNoSub)+'）。</li>'+
+    '<li>培训标注率随薪资呈倒 U 型：3–5 千区间 '+fp(sb.rate[1],1)+' → '+sb.names[pk]+' 最高（'+fp(sb.rate[pk],1)+'）→ 25 千以上回落至 '+fp(sb.rate[sb.rate.length-1],1)+'。</li></ul>';
+}
+
+/* ---------- ⑤ 技能与描述 ---------- */
+function renderSkill(){
+  var sk = D.skHist[CAL==='sub'?'sub':'all'];
+  var dl = D.dlHist[CAL==='sub'?'sub':'all'];
+  distBar(document.getElementById('ch-skhist'), sk, ['培训岗位','其他岗位'], [TRAIN2,'#9aabc2']);
+  distBar(document.getElementById('ch-dlhist'), dl, ['培训岗位','其他岗位'], ['#8b5cf6','#9aabc2']);
+
+  var dk = D.descKw;
+  make(document.getElementById('ch-desckw'), {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,1);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:1},
+    xAxis:{type:'category',data:dk.names,axisLabel:axisLabel({interval:0,rotate:26}),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',max:100,axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[
+      {name:'培训岗位',type:'bar',barMaxWidth:24,data:dk.tr.map(function(v){return +(v*100).toFixed(1);}),itemStyle:{color:TRAIN2,borderRadius:[4,4,0,0]}},
+      {name:'其他岗位',type:'bar',barMaxWidth:24,data:dk.no.map(function(v){return +(v*100).toFixed(1);}),itemStyle:{color:'#9aabc2',borderRadius:[4,4,0,0]}}
+    ]});
+
+  liftTable(document.getElementById('skill-lift'), D.skillLift, true);
+
+  var M = D.meta;
+  var dki = dk.names.indexOf('无经验可'), dk2 = dk.names.indexOf('带教/师徒');
+  var dk3 = dk.names.indexOf('证书要求'), dk4 = dk.names.indexOf('外语要求');
+  document.getElementById('in-skill').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>培训岗位的技能标签数（'+M.meanSkTrain.toFixed(2)+' 个）反而略高于其他岗位（'+M.meanSkNoSub.toFixed(2)+' 个）——<b>提供培训的岗位并不需要更少技能</b>。</li>'+
+    '<li>培训岗位的岗位描述更长（'+M.meanDescTrain+' 字 vs '+M.meanDescNo+' 字），信息披露更充分。</li>'+
+    '<li>描述文本印证了「低门槛 + 培养」定位：培训岗位更常出现「无经验可」（'+fp(dk.tr[dki],1)+' vs '+fp(dk.no[dki],1)+
+    '）与「带教/师徒」（'+fp(dk.tr[dk2],1)+' vs '+fp(dk.no[dk2],1)+'），而更少要求「证书」（'+fp(dk.tr[dk3],1)+' vs '+fp(dk.no[dk3],1)+
+    '）与「外语」（'+fp(dk.tr[dk4],1)+' vs '+fp(dk.no[dk4],1)+'）。</li></ul>';
+}
+
+function distBar(dom, h, names, colors){
+  make(dom, {
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v*100,2);}}),
+    legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
+    grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
+    xAxis:{type:'category',data:h.labels,axisLabel:axisLabel({interval:0}),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    series:[
+      {name:names[0],type:'bar',data:h.tr.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:colors[0]}},
+      {name:names[1],type:'bar',data:h.no.map(function(v){return +(v*100).toFixed(2);}),itemStyle:{color:colors[1]}}
+    ]});
+}
+
+function liftTable(dom, rows, isSkill){
+  var maxLift = 1;
+  rows.forEach(function(r){ if(r[5]!=null) maxLift=Math.max(maxLift,r[5]); });
+  var h = '<table class="tbl"><thead><tr><th>'+(isSkill?'技能标签':'福利标签')+
+    '</th><th class="r">培训岗位覆盖率</th><th class="r">其他岗位覆盖率</th><th class="r">倍数</th><th>相对规模</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr><td><b>'+r[0]+'</b></td><td class="r num">'+fp(r[3],2)+'</td><td class="r num">'+fp(r[4],2)+'</td>'+
+      '<td class="r num">'+(r[5]==null?'仅培训组':r[5].toFixed(1)+'×')+'</td>'+
+      '<td><span class="bar-mini" style="width:'+Math.round(110*((r[5]||maxLift)/maxLift))+'px"></span></td></tr>';
+  });
+  dom.innerHTML = h + '</tbody></table>';
+}
+
+/* ---------- ⑥ 福利结构 ---------- */
+function renderBenefit(){
+  var oh = D.othHist[CAL==='sub'?'sub':'all'];
+  distBar(document.getElementById('ch-othhist'), oh, ['培训岗位','其他岗位'], [TRAIN2,'#9aabc2']);
+
+  var th = D.themes;
+  var names=[], diffs=[];
+  for(var i=0;i<th.names.length;i++){ names.push(th.names[i]); diffs.push(th.tr[i]-th.no[i]); }
+  make(document.getElementById('ch-themediff'), {
+    tooltip:Object.assign(tooltipBase(),{axisPointer:{type:'shadow'},formatter:function(ps){
+      var i=ps[0].dataIndex;
+      return '<b>'+names[i]+'</b><br/>培训岗位 '+fp(th.tr[i],1)+'<br/>其他岗位 '+fp(th.no[i],1)+
+        '<br/>差 '+((diffs[i]>=0?'+':'')+(diffs[i]*100).toFixed(1))+'pp';}}),
+    grid:{left:8,right:54,top:8,bottom:8,containLabel:true},
+    xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'pp';}}),
+      splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    series:[{type:'bar',data:diffs.map(function(v){return +(v*100).toFixed(1);}),barMaxWidth:18,
+      itemStyle:{borderRadius:[0,3,3,0],color:function(p){return p.value>=0?TRAIN2:'#9aabc2';}},
+      label:{show:true,position:function(p){return p.value>=0?'right':'left';},color:'#4a5a70',fontSize:11,
+        formatter:function(p){return (p.value>=0?'+':'')+p.value.toFixed(1)+'pp';}}}]});
+
+  liftTable(document.getElementById('wel-common'), D.welfareCommon, false);
+  liftTable(document.getElementById('wel-drop'), D.welfareDrop, false);
+
+  var M = D.meta;
+  var maxTr = Math.max.apply(null, th.tr.map(function(v,i){return v-th.no[i];}));
+  var maxNm = names[diffs.indexOf(maxTr)];
+  var minTr = Math.min.apply(null, diffs);
+  var minNm = names[diffs.indexOf(minTr)];
+  document.getElementById('in-benefit').innerHTML = '<b>关键结论</b><ul>'+
+    '<li>培训岗位的其他福利项数（'+M.meanOthTrain.toFixed(2)+' 项）多于其他岗位（'+M.meanOthNoSub.toFixed(2)+' 项），且培训标注率随福利项数单调上升——<b>福利披露越完整，越可能同时标注培训</b>。</li>'+
+    '<li>培训标注与「正规雇佣型」福利正相关：<b>'+maxNm+'</b>高出 '+(maxTr*100).toFixed(1)+'pp，奖金提成、假期时长、关怀团建同样更高。</li>'+
+    '<li>与「劳务日结型」福利负相关：<b>'+minNm+'</b>低 '+(Math.abs(minTr)*100).toFixed(1)+'pp，日结/月结/预支类同样更低——包吃住 + 日结的蓝领劳务岗位几乎不标注培训。</li></ul>';
+}
+
+/* ---------- 渲染入口 ---------- */
+function renderAll(){
+  disposeAll();
+  renderKpis();
+  renderTrend();
+  renderJob();
+  renderEdu();
+  renderSalary();
+  renderSkill();
+  renderBenefit();
+}
+
+document.getElementById('caliber').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  if(b.getAttribute('data-v')===CAL) return;
+  var y = window.scrollY;
+  CAL = b.getAttribute('data-v');
+  document.querySelectorAll('#caliber button').forEach(function(x){
+    x.classList.toggle('on', x.getAttribute('data-v')===CAL); });
+  renderAll();
+  window.scrollTo(0, y);
+});
+
+document.getElementById('eduexp-mode').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  eduexpMode = b.getAttribute('data-v');
+  document.querySelectorAll('#eduexp-mode button').forEach(function(x){
+    x.classList.toggle('on', x.getAttribute('data-v')===eduexpMode); });
+  renderEduExp();
+});
+
+renderAll();
+})();
+</script>
+</body>
+</html>
