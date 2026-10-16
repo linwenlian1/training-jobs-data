@@ -75,6 +75,9 @@ footer{max-width:1320px;margin:0 auto;padding:0 24px 60px;color:var(--ink-3);fon
 .tbl td{padding:7px 9px;border-bottom:1px solid #f1f4f8}
 .tbl tr:hover td{background:#fafbfd}
 .tbl .r{text-align:right}
+.tblwrap{max-height:470px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.tblwrap .tbl th{position:sticky;top:0;background:#fff;z-index:2}
+.grid{align-items:start}
 .bar-mini{display:inline-block;height:8px;border-radius:4px;background:var(--accent);vertical-align:middle}
 .pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:#eef2f8;color:var(--ink-2);margin:0 6px 6px 0}
 .pill.t{background:#fdeee1;color:#a2460a}
@@ -137,8 +140,14 @@ footer{max-width:1320px;margin:0 auto;padding:0 24px 60px;color:var(--ink-3);fon
     <div class="grid two">
       <div class="card"><h3>职业大类的培训标注率</h3><p class="hint">柱长为培训标注率，悬停查看岗位量与薪资</p>
         <div class="chart hbar" id="ch-occGroup"></div></div>
-      <div class="card"><h3>细分职业类别 TOP20（按投放量）</h3><p class="hint">本图固定为全部岗位口径</p>
+      <div class="card"><h3>细分职业类别：投放量前 34 类，按培训标注率排序</h3>
+        <p class="hint">所有类别名称均已完整显示；全部 114 类见下方排名表（本图固定为全部岗位口径）</p>
         <div class="chart hbar" id="ch-occ"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <h3>全部职业类别：培训标注率排名</h3>
+      <p class="hint">按培训标注率从高到低排序，共 <b>114</b> 类，与上图同口径（全部岗位）。「岗位量」用于判断样本大小，样本过小的类别标注率波动大，请结合岗位量解读。</p>
+      <div class="tblwrap" id="occ-rank"></div>
     </div>
     <div class="card" style="margin-top:18px"><h3>职业大类 × 月份：培训标注率热力图</h3>
       <p class="hint">颜色越深表示当月该职业大类的培训标注率越高，格内数字为百分数（此图固定为全部岗位口径）</p>
@@ -284,6 +293,9 @@ function fmtInt(n){ if(n===null||n===undefined) return '—';
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function fp(v,d){ if(v===null||v===undefined) return '—';
   return (v*100).toFixed(d===undefined?1:d)+'%'; }
+/* 数据本身已是“百分数”时使用（7.71 -> 7.71%），避免再乘 100 */
+function pctv(v,d){ if(v===null||v===undefined) return '—';
+  return (+v).toFixed(d===undefined?1:d)+'%'; }
 function money(v){ return v==null ? '—' : '¥'+fmtInt(v); }
 function wan(v){ return (v/10000).toFixed(2); }
 
@@ -313,6 +325,8 @@ function hbar(dom, arr, opts){
     .sort(function(a,b){ return arr.rate[b]-arr.rate[a]; });
   var names=[], vals=[];
   order.forEach(function(i){ names.push(arr.names[i]); vals.push(arr.rate[i]); });
+  var rowH = opts.rowH || 21;
+  dom.style.height = Math.max(300, names.length*rowH + 78) + 'px';
   var opt = {
     tooltip: Object.assign(tooltipBase(), {axisPointer:{type:'shadow'},
       formatter:function(ps){ var p=ps[0], i=order[p.dataIndex];
@@ -323,7 +337,7 @@ function hbar(dom, arr, opts){
     grid:{left:8,right:52,top:8,bottom:8,containLabel:true},
     xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'%';}}),
       splitLine:{lineStyle:{color:'#f0f3f8'}}},
-    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel({interval:0}),axisLine:AXIS_LINE,axisTick:{show:false}},
     series:[{type:'bar',data:vals,barMaxWidth:16,
       itemStyle:{color:opts.color||TRAIN,borderRadius:[0,3,3,0]},
       label:{show:true,position:'right',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value,1);}}}]};
@@ -377,7 +391,7 @@ function renderKpis(){
 function renderTrend(){
   var T = D.trend;
   make(document.getElementById('ch-lens'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);}}),
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return pctv(v,2);}}),
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -389,7 +403,7 @@ function renderTrend(){
     ]});
 
   make(document.getElementById('ch-rate'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v/100,1);}}),
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return pctv(v,2);}}),
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:48,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -426,7 +440,7 @@ function renderTrend(){
     ]});
 
   make(document.getElementById('ch-trtype'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v/100,1);}}),
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return pctv(v,2);}}),
     legend:{type:'scroll',top:0,left:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:MLABELS,boundaryGap:false,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -477,7 +491,11 @@ function renderJob(){
   // 城市等级（柱状）
   var tier = dim('tier');
   make(document.getElementById('ch-tier'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);}}),
+    tooltip:Object.assign(tooltipBase(),{formatter:function(ps){
+      var i=ps[0].dataIndex;
+      return '<b>'+tier.names[i]+'</b><br/>培训标注率：'+fp(tier.rate[i],2)+
+        '<br/>培训岗位：'+fmtInt(tier.ntr[i])+' / '+fmtInt(tier.n[i])+
+        '<br/>培训岗位平均月薪：'+money(tier.salTr[i]);}}),
     grid:{left:8,right:14,top:14,bottom:8,containLabel:true},
     xAxis:{type:'category',data:tier.names,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
     yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
@@ -527,10 +545,32 @@ function renderJob(){
     '<li>行业分化极大：保险、银行等「人海销售 + 标准化话术」行业遥遥领先，而制造 / 半导体 / 设备类行业普遍低于 3%。</li></ul>';
 }
 
+/* 全部职业类别排名表（固定“全部岗位”口径，用于把排名对应到职业名称） */
+function renderOccRank(){
+  var host = document.getElementById('occ-rank');
+  if(!host) return;
+  var rows = D.dims.occAll;
+  if(!rows) return;
+  var idx = rows.names.map(function(_,i){ return i; })
+    .sort(function(a,b){ return (rows.rate[b]-rows.rate[a]) || (rows.n[b]-rows.n[a]); });
+  var h = '<table class="tbl"><thead><tr><th class="r">排名</th><th>职业类别</th>'+
+          '<th class="r">岗位量</th><th class="r">培训岗位</th>'+
+          '<th class="r">培训标注率</th><th class="r">培训岗位平均月薪</th></tr></thead><tbody>';
+  idx.forEach(function(i, k){
+    h += '<tr><td class="r num">'+(k+1)+'</td><td><b>'+rows.names[i]+'</b></td>'+
+      '<td class="r num">'+fmtInt(rows.n[i])+'</td>'+
+      '<td class="r num">'+fmtInt(rows.ntr[i])+'</td>'+
+      '<td class="r num">'+fp(rows.rate[i],2)+'</td>'+
+      '<td class="r num">'+money(rows.salTr[i])+'</td></tr>';
+  });
+  host.innerHTML = h + '</tbody></table>';
+}
+
 function hbarRows(dom, rows, color){
   var order = rows.map(function(_,i){return i;}).sort(function(a,b){return rows[b].rate-rows[a].rate;});
   var names=order.map(function(i){return rows[i].name;});
   var vals=order.map(function(i){return rows[i].rate;});
+  dom.style.height = Math.max(280, names.length*21 + 78) + 'px';
   make(dom, {
     tooltip:Object.assign(tooltipBase(),{axisPointer:{type:'shadow'},formatter:function(ps){
       var i=order[ps[0].dataIndex];
@@ -538,7 +578,7 @@ function hbarRows(dom, rows, color){
         '<br/>培训岗位：'+fmtInt(rows[i].ntr)+' / '+fmtInt(rows[i].n);}}),
     grid:{left:8,right:46,top:8,bottom:8,containLabel:true},
     xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'%';}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
-    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
+    yAxis:{type:'category',data:names,inverse:true,axisLabel:axisLabel({interval:0}),axisLine:AXIS_LINE,axisTick:{show:false}},
     series:[{type:'bar',data:vals,barMaxWidth:16,itemStyle:{color:color,borderRadius:[0,3,3,0]},
       label:{show:true,position:'right',color:'#4a5a70',fontSize:11,formatter:function(p){return fp(p.value,1);}}}]});
 }
@@ -566,8 +606,11 @@ function renderEdu(){
 
 function rateBar(dom, arr, color){
   make(dom, {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,2);},
-      formatter:null}),
+    tooltip:Object.assign(tooltipBase(),{formatter:function(ps){
+      var i=ps[0].dataIndex;
+      return '<b>'+arr.names[i]+'</b><br/>培训标注率：'+fp(arr.rate[i],2)+
+        '<br/>培训岗位：'+fmtInt(arr.ntr[i])+' / '+fmtInt(arr.n[i])+
+        '<br/>平均月薪（培训 / 其他）：'+money(arr.salTr[i])+' / '+money(arr.salNo[i]);}}),
     grid:{left:8,right:14,top:14,bottom:8,containLabel:true},
     xAxis:{type:'category',data:arr.names,axisLabel:axisLabel({interval:0,rotate:30}),axisLine:AXIS_LINE,axisTick:{show:false}},
     yAxis:{type:'value',axisLabel:axisLabel({formatter:'{value}%'}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
@@ -607,7 +650,7 @@ function renderSalary(){
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:['P25','中位数 P50','P75'],axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
-    yAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v/1000)+'k';}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
+    yAxis:{type:'value',name:'元',axisLabel:axisLabel({formatter:function(v){return fmtInt(v);}}),splitLine:{lineStyle:{color:'#f0f3f8'}}},
     series:[
       {name:'培训岗位',type:'bar',barMaxWidth:42,data:Q.train,itemStyle:{color:TRAIN2,borderRadius:[5,5,0,0]},
        label:{show:true,position:'top',color:'#4a5a70',fontSize:11,formatter:function(p){return fmtInt(p.value);}}},
@@ -621,7 +664,7 @@ function renderSalary(){
   var med1 = D.meta.salQ.train[1], med2 = D.meta.salQ.no[1];
   var medIdx1 = Math.round(med1/S.bin), medIdx2 = Math.round(med2/S.bin);
   make(document.getElementById('ch-saldist'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v*100,2);}}),
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return pctv(v,2);}}),
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:xl,axisLabel:axisLabel(),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -657,7 +700,11 @@ function renderSkill(){
 
   var dk = D.descKw;
   make(document.getElementById('ch-desckw'), {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v,1);}}),
+    tooltip:Object.assign(tooltipBase(),{formatter:function(ps){
+      var i=ps[0].dataIndex;
+      return '<b>'+dk.names[i]+'</b><br/>培训岗位：'+fp(dk.tr[i],1)+
+        '<br/>其他岗位：'+fp(dk.no[i],1)+
+        '<br/>差：'+((dk.tr[i]-dk.no[i])>=0?'+':'')+((dk.tr[i]-dk.no[i])*100).toFixed(1)+'pp';}}),
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:1},
     xAxis:{type:'category',data:dk.names,axisLabel:axisLabel({interval:0,rotate:26}),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -682,7 +729,7 @@ function renderSkill(){
 
 function distBar(dom, h, names, colors){
   make(dom, {
-    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return fp(v*100,2);}}),
+    tooltip:Object.assign(tooltipBase(),{valueFormatter:function(v){return pctv(v,2);}}),
     legend:{top:0,right:0,itemWidth:12,itemHeight:8,textStyle:axisLabel()},
     grid:{left:8,right:14,top:34,bottom:8,containLabel:true},
     xAxis:{type:'category',data:h.labels,axisLabel:axisLabel({interval:0}),axisLine:AXIS_LINE,axisTick:{show:false}},
@@ -718,7 +765,7 @@ function renderBenefit(){
     tooltip:Object.assign(tooltipBase(),{axisPointer:{type:'shadow'},formatter:function(ps){
       var i=ps[0].dataIndex;
       return '<b>'+names[i]+'</b><br/>培训岗位 '+fp(th.tr[i],1)+'<br/>其他岗位 '+fp(th.no[i],1)+
-        '<br/>差 '+((diffs[i]>=0?'+':'')+(diffs[i]*100).toFixed(1))+'pp';}}),
+        '<br/>差 '+((diffs[i]>=0?'+':'')+(diffs[i]*100).toFixed(1))+' 个百分点';}}),
     grid:{left:8,right:54,top:8,bottom:8,containLabel:true},
     xAxis:{type:'value',axisLabel:axisLabel({formatter:function(v){return (v*100)+'pp';}}),
       splitLine:{lineStyle:{color:'#f0f3f8'}}},
@@ -748,6 +795,7 @@ function renderAll(){
   renderKpis();
   renderTrend();
   renderJob();
+  renderOccRank();
   renderEdu();
   renderSalary();
   renderSkill();
